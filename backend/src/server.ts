@@ -12,7 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/api', categoryRoutes);
+app.use('/api/categories', categoryRoutes);
 app.use('/api', matchRoutes);
 app.use('/api', playerRoutes);
 app.use('/api', teamRoutes);

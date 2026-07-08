@@ -4,10 +4,16 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+interface PrismaCategory {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export class CategoryController {
   async list(req: Request, res: Response) {
     const categories = await prisma.category.findMany();
-    const result: CategoryDTO[] = categories.map((category: any) => ({
+    const result: CategoryDTO[] = categories.map((category: PrismaCategory) => ({
       id: category.id,
       name: category.name,
       color: category.color,
@@ -67,7 +73,7 @@ export class CategoryController {
         });
       }
 
-      const updateData: any = {};
+      const updateData: { name?: string; color?: string } = {};
       if (name) updateData.name = name.trim();
       if (color) updateData.color = color.trim();
 
