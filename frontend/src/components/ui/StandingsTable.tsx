@@ -1,10 +1,33 @@
+import { memo } from 'react';
 import { StandingRowDTO } from '@shared/index';
 
 interface StandingsTableProps {
   rows: StandingRowDTO[];
 }
 
-export function StandingsTable({ rows }: StandingsTableProps) {
+interface StandingsRowProps {
+  row: StandingRowDTO;
+}
+
+// Memoize row component to prevent unnecessary re-renders
+const StandingsRow = memo(function StandingsRow({ row }: StandingsRowProps) {
+  return (
+    <tr className="border-t border-slate-200">
+      <td className="py-2 font-semibold">{row.position}</td>
+      <td className="py-2">{row.team.name}</td>
+      <td className="py-2">{row.played}</td>
+      <td className="py-2">{row.won}</td>
+      <td className="py-2">{row.drawn}</td>
+      <td className="py-2">{row.lost}</td>
+      <td className="py-2">{row.goalsFor}</td>
+      <td className="py-2">{row.goalsAgainst}</td>
+      <td className="py-2">{row.goalDiff}</td>
+      <td className="py-2 font-semibold">{row.points}</td>
+    </tr>
+  );
+});
+
+export const StandingsTable = memo(function StandingsTable({ rows }: StandingsTableProps) {
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm">
       <table className="w-full text-left text-sm text-slate-700">
@@ -24,21 +47,10 @@ export function StandingsTable({ rows }: StandingsTableProps) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.team.id} className="border-t border-slate-200">
-              <td className="py-2 font-semibold">{row.position}</td>
-              <td className="py-2">{row.team.name}</td>
-              <td className="py-2">{row.played}</td>
-              <td className="py-2">{row.won}</td>
-              <td className="py-2">{row.drawn}</td>
-              <td className="py-2">{row.lost}</td>
-              <td className="py-2">{row.goalsFor}</td>
-              <td className="py-2">{row.goalsAgainst}</td>
-              <td className="py-2">{row.goalDiff}</td>
-              <td className="py-2 font-semibold">{row.points}</td>
-            </tr>
+            <StandingsRow key={row.team.id} row={row} />
           ))}
         </tbody>
       </table>
     </div>
   );
-}
+});
