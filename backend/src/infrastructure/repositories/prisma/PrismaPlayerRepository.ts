@@ -83,21 +83,16 @@ export class PrismaPlayerRepository implements IPlayerRepository {
   }
 
   async refreshSeasonPoints(categoryId: string): Promise<void> {
-    const players = await this.prisma.player.findMany({
-      where: { categoryId },
-      include: { stats: true },
-    });
-
-    await Promise.all(
-      players.map((player: any) =>
-        this.prisma.player.update({
-          where: { id: player.id },
-          data: {
-            seasonPoints: player.stats.reduce((sum: number, stat: any) => sum + stat.points, 0),
-          },
-        })
-      )
-    );
+    // Use raw SQL for batch update to avoid N+1 query problem
+    await this.prisma.$executeRaw`
+      UPDATE "Player" p
+      SET "seasonPoints" = COALESCE((
+        SELECT SUM(pms."points")
+        FROM "PlayerMatchStat" pms
+        WHERE pms."playerId" = p."id"
+      ), 0)
+      WHERE p."categoryId" = ${categoryId}
+    `;
   }
 
   async findTopScorersByCategory(categoryId: string): Promise<PlayerRecord[]> {

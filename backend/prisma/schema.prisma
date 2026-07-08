@@ -59,6 +59,9 @@ model Match {
   updatedAt    DateTime          @updatedAt
 
   @@index([categoryId])
+  @@index([homeId])
+  @@index([awayId])
+  @@index([status])
 }
 
 model Player {
@@ -106,4 +109,7 @@ model Sponsor {
   categoryId String?
   active     Boolean   @default(true)
   createdAt  DateTime  @default(now())
+
+  @@index([categoryId])
+  @@index([active])
 }
