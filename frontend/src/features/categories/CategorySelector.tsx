@@ -8,7 +8,7 @@ interface CategorySelectorProps {
 
 export function CategorySelector({ categories, selectedCategoryId, onSelect }: CategorySelectorProps) {
   return (
-    <div className="flex flex-wrap gap-2 py-4">
+    <div className="flex flex-wrap gap-3">
       {categories.map((category) => {
         const selected = category.id === selectedCategoryId;
         return (
@@ -16,10 +16,10 @@ export function CategorySelector({ categories, selectedCategoryId, onSelect }: C
             key={category.id}
             type="button"
             onClick={() => onSelect(category.id)}
-            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+            className={`px-5 py-3 rounded-lg font-semibold text-sm transition-all duration-200 border ${
               selected
-                ? 'border-green-600 bg-green-600 text-white'
-                : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
+                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white border-transparent shadow-md hover:shadow-lg scale-105'
+                : 'bg-white text-slate-700 border-slate-200 hover:border-green-400 hover:bg-slate-50 hover:text-slate-900'
             }`}>
             {category.name}
           </button>
