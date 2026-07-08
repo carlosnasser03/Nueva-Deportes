@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Position {
+  GK
+  DEF
+  MID
+  FWD
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  color     String
+  teams     Team[]
+  matches   Match[]
+  players   Player[]
+  sponsors  Sponsor[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Team {
+  id          String    @id @default(cuid())
+  name        String
+  crestUrl    String?
+  category    Category  @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  players     Player[]
+  homeMatches Match[]   @relation("homeMatches")
+  awayMatches Match[]   @relation("awayMatches")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([categoryId])
+}
+
+model Match {
+  id           String            @id @default(cuid())
+  category     Category          @relation(fields: [categoryId], references: [id])
+  categoryId   String
+  home         Team              @relation("homeMatches", fields: [homeId], references: [id])
+  homeId       String
+  away         Team              @relation("awayMatches", fields: [awayId], references: [id])
+  awayId       String
+  date         DateTime
+  venue        String
+  status       String
+  homeGoals    Int?
+  awayGoals    Int?
+  playerStats  PlayerMatchStat[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([categoryId])
+}
+
+model Player {
+  id           String            @id @default(cuid())
+  name         String
+  cardPhotoUrl String?
+  position     Position
+  jerseyNumber Int?
+  team         Team              @relation(fields: [teamId], references: [id])
+  teamId       String
+  category     Category          @relation(fields: [categoryId], references: [id])
+  categoryId   String
+  stats        PlayerMatchStat[]
+  seasonPoints Float             @default(0)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([teamId])
+  @@index([categoryId])
+}
+
+model PlayerMatchStat {
+  id            String   @id @default(cuid())
+  player        Player   @relation(fields: [playerId], references: [id])
+  playerId      String
+  match         Match    @relation(fields: [matchId], references: [id])
+  matchId       String
+  minutesPlayed Int
+  goals         Int      @default(0)
+  cleanSheet    Boolean  @default(false)
+  points        Float    @default(0)
+  createdAt     DateTime @default(now())
+
+  @@unique([playerId, matchId])
+  @@index([matchId])
+}
+
+model Sponsor {
+  id         String    @id @default(cuid())
+  name       String
+  imageUrl   String
+  linkUrl    String?
+  placement  String
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
+  active     Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+}
