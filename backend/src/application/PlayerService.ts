@@ -1,5 +1,5 @@
 import { IPlayerRepository } from '../infrastructure/repositories/interfaces/IPlayerRepository';
-import { PlayerDTO, PlayerProfileDTO, Position } from '@shared';
+import { PlayerDTO, PlayerProfileDTO, Position } from './types';
 
 export class PlayerService {
   constructor(private readonly playerRepository: IPlayerRepository) {}

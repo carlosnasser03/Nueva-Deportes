@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { repositories } from '../../../config/container';
 import { MatchService } from '../../../application/MatchService';
-import { MatchDTO, PlayerDTO, PlayerMatchRatingDTO } from '@shared';
+import { MatchDTO, PlayerDTO, PlayerMatchRatingDTO } from '../../../types';
 
 const matchService = new MatchService(repositories.matchRepository, repositories.playerRepository);
 

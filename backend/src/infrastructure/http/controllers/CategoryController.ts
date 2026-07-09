@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { CategoryDTO } from '@shared';
+import { CategoryDTO } from '../../../types';
 import { PrismaClient } from '@prisma/client';
 
 let prisma: PrismaClient;
