@@ -66,7 +66,8 @@ export class CategoryController {
       };
 
       res.status(201).json(result);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Create error:', error?.message || error);
       res.status(500).json({
         message: 'Failed to create category',
       });
@@ -111,7 +112,8 @@ export class CategoryController {
       };
 
       res.json(result);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Update error:', error?.message || error);
       res.status(500).json({
         message: 'Failed to update category',
       });
@@ -133,12 +135,33 @@ export class CategoryController {
         });
       }
 
+      // Delete related data first to avoid FK constraint issues
+      try {
+        // Delete teams in this category
+        await client.team.deleteMany({
+          where: { categoryId: id },
+        });
+
+        // Delete players in this category
+        await client.player.deleteMany({
+          where: { categoryId: id },
+        });
+
+        // Delete matches in this category
+        await client.match.deleteMany({
+          where: { categoryId: id },
+        });
+      } catch (fkError) {
+        console.error('Error deleting related data:', fkError);
+      }
+
       await client.category.delete({
         where: { id },
       });
 
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Delete error:', error?.message || error);
       res.status(500).json({
         message: 'Failed to delete category',
       });

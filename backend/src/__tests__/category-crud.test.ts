@@ -54,16 +54,16 @@ describe('Category CRUD Operations', () => {
       color: '#FF5733',
     };
 
-    const response = await makeRequest('POST', '/categories', categoryData);
+    const response = await makeRequest<any>('POST', '/categories', categoryData);
 
     expect(response.status).toBe(201);
     expect(response.data).toBeDefined();
-    expect(response.data.id).toBeDefined();
-    expect(response.data.name).toBe(categoryData.name);
-    expect(response.data.color).toBe(categoryData.color);
+    expect((response.data as any).id).toBeDefined();
+    expect((response.data as any).name).toBe(categoryData.name);
+    expect((response.data as any).color).toBe(categoryData.color);
 
     // Store for later tests
-    createdCategoryId = response.data.id;
+    createdCategoryId = (response.data as any).id;
   });
 
   it('should reject invalid category data with 400 status', async () => {
@@ -94,8 +94,8 @@ describe('Category CRUD Operations', () => {
       color: '#AABBCC',
     };
 
-    const createResponse = await makeRequest('POST', '/categories', categoryData);
-    const categoryId = createResponse.data.id;
+    const createResponse = await makeRequest<any>('POST', '/categories', categoryData);
+    const categoryId = (createResponse.data as any).id;
 
     // Update it
     const updateData = {
@@ -103,12 +103,12 @@ describe('Category CRUD Operations', () => {
       color: '#112233',
     };
 
-    const updateResponse = await makeRequest('PUT', `/categories/${categoryId}`, updateData);
+    const updateResponse = await makeRequest<any>('PUT', `/categories/${categoryId}`, updateData);
 
     expect(updateResponse.status).toBe(200);
-    expect(updateResponse.data.id).toBe(categoryId);
-    expect(updateResponse.data.name).toBe(updateData.name);
-    expect(updateResponse.data.color).toBe(updateData.color);
+    expect((updateResponse.data as any).id).toBe(categoryId);
+    expect((updateResponse.data as any).name).toBe(updateData.name);
+    expect((updateResponse.data as any).color).toBe(updateData.color);
 
     // Clean up
     await makeRequest('DELETE', `/categories/${categoryId}`);
@@ -121,8 +121,8 @@ describe('Category CRUD Operations', () => {
       color: '#DDEEFF',
     };
 
-    const createResponse = await makeRequest('POST', '/categories', categoryData);
-    const categoryId = createResponse.data.id;
+    const createResponse = await makeRequest<any>('POST', '/categories', categoryData);
+    const categoryId = (createResponse.data as any).id;
 
     // Try to update with empty object (should fail because at least one field is required)
     const updateResponse = await makeRequest('PUT', `/categories/${categoryId}`, {});
@@ -140,8 +140,8 @@ describe('Category CRUD Operations', () => {
       color: '#FF00FF',
     };
 
-    const createResponse = await makeRequest('POST', '/categories', categoryData);
-    const categoryId = createResponse.data.id;
+    const createResponse = await makeRequest<any>('POST', '/categories', categoryData);
+    const categoryId = (createResponse.data as any).id;
 
     // List categories
     const listResponse = await makeRequest<any[]>('GET', '/categories');
@@ -176,8 +176,8 @@ describe('Category CRUD Operations', () => {
       color: '#00FF00',
     };
 
-    const createResponse = await makeRequest('POST', '/categories', categoryData);
-    const categoryId = createResponse.data.id;
+    const createResponse = await makeRequest<any>('POST', '/categories', categoryData);
+    const categoryId = (createResponse.data as any).id;
 
     // Delete it
     const deleteResponse = await makeRequest('DELETE', `/categories/${categoryId}`);
@@ -194,11 +194,11 @@ describe('Category CRUD Operations', () => {
   it('should return 404 when trying to delete non-existent category', async () => {
     const fakeId = 'non-existent-id-' + Date.now();
 
-    const deleteResponse = await makeRequest('DELETE', `/categories/${fakeId}`);
+    const deleteResponse = await makeRequest<any>('DELETE', `/categories/${fakeId}`);
 
     expect(deleteResponse.status).toBe(404);
     expect(deleteResponse.data).toBeDefined();
-    expect(deleteResponse.data.message).toBeDefined();
+    expect((deleteResponse.data as any).message).toBeDefined();
   });
 
   it('should validate response has correct structure for all operations', async () => {
@@ -249,7 +249,7 @@ describe('Category CRUD Operations', () => {
   it('should handle concurrent operations safely', async () => {
     // Create multiple categories concurrently
     const categoryPromises = Array.from({ length: 5 }, (_, i) =>
-      makeRequest('POST', '/categories', {
+      makeRequest<any>('POST', '/categories', {
         name: `Concurrent Category ${i} ${Date.now()}`,
         color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
       }),
@@ -260,10 +260,10 @@ describe('Category CRUD Operations', () => {
     // Verify all were created
     results.forEach((result) => {
       expect(result.status).toBe(201);
-      expect(result.data.id).toBeDefined();
+      expect((result.data as any).id).toBeDefined();
     });
 
-    const createdIds = results.map((r) => r.data.id);
+    const createdIds = results.map((r) => (r.data as any).id);
 
     // Verify all exist in list
     const listResponse = await makeRequest<any[]>('GET', '/categories');

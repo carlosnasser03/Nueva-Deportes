@@ -11,16 +11,21 @@ export class PrismaPlayerRepository implements IPlayerRepository {
         stats: { include: { match: true } },
       },
     });
-    return players.map((player: any) => ({
-      ...player,
-      stats: player.stats.map((stat: any) => ({
+    return players.map((player: any) => {
+      const stats = player.stats.map((stat: any) => ({
         matchId: stat.matchId,
         match: { id: stat.match.id, date: stat.match.date },
         minutesPlayed: stat.minutesPlayed,
         goals: stat.goals,
         points: stat.points,
-      })),
-    }));
+      }));
+      const totalGoals = player.stats.reduce((sum: number, stat: any) => sum + (stat.goals || 0), 0);
+      return {
+        ...player,
+        goals: totalGoals,
+        stats,
+      };
+    });
   }
 
   async findById(playerId: string): Promise<PlayerRecord | null> {
@@ -31,15 +36,18 @@ export class PrismaPlayerRepository implements IPlayerRepository {
       },
     });
     if (!player) return null;
+    const stats = player.stats.map((stat: any) => ({
+      matchId: stat.matchId,
+      match: { id: stat.match.id, date: stat.match.date },
+      minutesPlayed: stat.minutesPlayed,
+      goals: stat.goals,
+      points: stat.points,
+    }));
+    const totalGoals = player.stats.reduce((sum: number, stat: any) => sum + (stat.goals || 0), 0);
     return {
       ...player,
-      stats: player.stats.map((stat: any) => ({
-        matchId: stat.matchId,
-        match: { id: stat.match.id, date: stat.match.date },
-        minutesPlayed: stat.minutesPlayed,
-        goals: stat.goals,
-        points: stat.points,
-      })),
+      goals: totalGoals,
+      stats,
     };
   }
 
@@ -50,16 +58,21 @@ export class PrismaPlayerRepository implements IPlayerRepository {
         stats: { include: { match: true } },
       },
     });
-    return players.map((player: any) => ({
-      ...player,
-      stats: player.stats.map((stat: any) => ({
+    return players.map((player: any) => {
+      const stats = player.stats.map((stat: any) => ({
         matchId: stat.matchId,
         match: { id: stat.match.id, date: stat.match.date },
         minutesPlayed: stat.minutesPlayed,
         goals: stat.goals,
         points: stat.points,
-      })),
-    }));
+      }));
+      const totalGoals = player.stats.reduce((sum: number, stat: any) => sum + (stat.goals || 0), 0);
+      return {
+        ...player,
+        goals: totalGoals,
+        stats,
+      };
+    });
   }
 
   async createPlayerMatchStat(payload: PlayerMatchStatPayload): Promise<void> {
@@ -98,9 +111,33 @@ export class PrismaPlayerRepository implements IPlayerRepository {
   async findTopScorersByCategory(categoryId: string): Promise<PlayerRecord[]> {
     const players = await this.prisma.player.findMany({
       where: { categoryId },
-      orderBy: [{ goals: 'desc' }, { seasonPoints: 'desc' }, { name: 'asc' }],
-      take: 10,
+      include: {
+        stats: { include: { match: true } },
+      },
     });
-    return players as PlayerRecord[];
+
+    const playersWithGoals = players.map((player: any) => {
+      const stats = player.stats.map((stat: any) => ({
+        matchId: stat.matchId,
+        match: { id: stat.match.id, date: stat.match.date },
+        minutesPlayed: stat.minutesPlayed,
+        goals: stat.goals,
+        points: stat.points,
+      }));
+      const totalGoals = player.stats.reduce((sum: number, stat: any) => sum + (stat.goals || 0), 0);
+      return {
+        ...player,
+        goals: totalGoals,
+        stats,
+      } as PlayerRecord;
+    });
+
+    return playersWithGoals
+      .sort((a, b) => {
+        if (b.goals !== a.goals) return b.goals - a.goals;
+        if (b.seasonPoints !== a.seasonPoints) return b.seasonPoints - a.seasonPoints;
+        return a.name.localeCompare(b.name);
+      })
+      .slice(0, 10);
   }
 }

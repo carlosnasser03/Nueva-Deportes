@@ -74,17 +74,17 @@ async function simulateUserSession(userId: number): Promise<TestUser> {
       color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
     };
 
-    const createResponse = await makeRequest('POST', '/categories', categoryData);
+    const createResponse = await makeRequest<any>('POST', '/categories', categoryData);
     if (createResponse.status !== 201) {
       user.errors.push(`POST /categories: Expected 201, got ${createResponse.status}`);
       return user;
     }
 
-    user.categoryId = createResponse.data.id;
+    user.categoryId = (createResponse.data as any).id;
     user.successCount++;
 
     // Validate response structure
-    if (!createResponse.data.id || !createResponse.data.name || !createResponse.data.color) {
+    if (!(createResponse.data as any).id || !(createResponse.data as any).name || !(createResponse.data as any).color) {
       user.errors.push('POST /categories: Response missing required fields');
     }
 
@@ -94,7 +94,7 @@ async function simulateUserSession(userId: number): Promise<TestUser> {
       color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
     };
 
-    const updateResponse = await makeRequest('PUT', `/categories/${user.categoryId}`, updateData);
+    const updateResponse = await makeRequest<any>('PUT', `/categories/${user.categoryId}`, updateData);
     if (updateResponse.status !== 200) {
       user.errors.push(`PUT /categories/${user.categoryId}: Expected 200, got ${updateResponse.status}`);
     } else {
@@ -102,7 +102,7 @@ async function simulateUserSession(userId: number): Promise<TestUser> {
     }
 
     // Validate updated response structure
-    if (!updateResponse.data.id || !updateResponse.data.name || !updateResponse.data.color) {
+    if (!(updateResponse.data as any).id || !(updateResponse.data as any).name || !(updateResponse.data as any).color) {
       user.errors.push('PUT /categories: Response missing required fields');
     }
 
@@ -195,13 +195,13 @@ describe('Stress Tests - Multiple Concurrent Users', () => {
       color: '#FF0000',
     };
 
-    const createResponse = await makeRequest('POST', '/categories', categoryData);
+    const createResponse = await makeRequest<any>('POST', '/categories', categoryData);
     expect(createResponse.status).toBe(201);
     expect(createResponse.data).toHaveProperty('id');
     expect(createResponse.data).toHaveProperty('name');
     expect(createResponse.data).toHaveProperty('color');
 
-    const categoryId = createResponse.data.id;
+    const categoryId = (createResponse.data as any).id;
 
     // Test GET response structure
     const listResponse = await makeRequest<any[]>('GET', '/categories');
@@ -231,9 +231,9 @@ describe('Stress Tests - Multiple Concurrent Users', () => {
         color: '#00FF00',
       };
 
-      const createResponse = await makeRequest('POST', '/categories', categoryData);
+      const createResponse = await makeRequest<any>('POST', '/categories', categoryData);
       if (createResponse.status === 201) {
-        await makeRequest('DELETE', `/categories/${createResponse.data.id}`);
+        await makeRequest('DELETE', `/categories/${(createResponse.data as any).id}`);
       }
     }
 
