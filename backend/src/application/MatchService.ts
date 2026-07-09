@@ -1,7 +1,7 @@
 import { createDefaultScoringEngine, PlayerMatchInput } from '../domain/scoring/engine';
 import { IMatchRepository } from '../infrastructure/repositories/interfaces/IMatchRepository';
 import { IPlayerRepository } from '../infrastructure/repositories/interfaces/IPlayerRepository';
-import type { Position } from './types';
+import type { Position } from '../types';
 
 export interface MatchResultPayload {
   matchId: string;

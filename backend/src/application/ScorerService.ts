@@ -1,5 +1,5 @@
 import { IPlayerRepository } from '../infrastructure/repositories/interfaces/IPlayerRepository';
-import { ScorerDTO } from '../../../shared/types';
+import { ScorerDTO } from '../types';
 
 export class ScorerService {
   constructor(private readonly playerRepository: IPlayerRepository) {}

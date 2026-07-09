@@ -1,6 +1,6 @@
 import { StandingsCalculator } from '../domain/standings/StandingsCalculator';
 import { IMatchRepository } from '../infrastructure/repositories/interfaces/IMatchRepository';
-import { TeamDTO, StandingRowDTO } from './types';
+import { TeamDTO, StandingRowDTO } from '../types';
 
 export class StandingsService {
   constructor(private readonly matchRepository: IMatchRepository) {}
