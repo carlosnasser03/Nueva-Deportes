@@ -11,4 +11,7 @@
     "start": "npm run start --workspace backend",
     "test": "npm run test --workspace backend"
   }
+  ,"overrides": {
+    "next": "14.2.35"
+  }
 }
