@@ -133,7 +133,7 @@ export class PrismaPlayerRepository implements IPlayerRepository {
     });
 
     return playersWithGoals
-      .sort((a, b) => {
+      .sort((a: any, b: any) => {
         if (b.goals !== a.goals) return b.goals - a.goals;
         if (b.seasonPoints !== a.seasonPoints) return b.seasonPoints - a.seasonPoints;
         return a.name.localeCompare(b.name);

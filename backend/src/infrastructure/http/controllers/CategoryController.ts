@@ -145,7 +145,7 @@ export class CategoryController {
             where: { categoryId: id },
             select: { id: true },
           });
-          const matchIds = matches.map(m => m.id);
+          const matchIds = matches.map((m: any) => m.id);
 
           if (matchIds.length > 0) {
             await client.playerMatchStat.deleteMany({
