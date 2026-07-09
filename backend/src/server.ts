@@ -1,4 +1,3 @@
-﻿import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
@@ -10,54 +9,47 @@ import playerRoutes from './infrastructure/http/routes/playerRoutes';
 import teamRoutes from './infrastructure/http/routes/teamRoutes';
 import standingsRoutes from './infrastructure/http/routes/standingsRoutes';
 import sponsorRoutes from './infrastructure/http/routes/sponsorRoutes';
-import scorerRoutes from './infrastructure/http/routes/scorerRoutes';
 
 const app = express();
 
-// Security middleware
+// Middleware de seguridad
 app.use(helmet());
-
-// Compression middleware
-app.use(compression());
-
-// CORS middleware
 app.use(cors());
+app.use(compression());
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests, please try again later.',
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // 100 requests por ventana
+  message: 'Demasiadas solicitudes',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use(limiter);
 
-// Body parser middleware
+// Body parser
 app.use(express.json());
 
-// Cache control headers
-app.use((req, res, next) => {
-  // Cache GET requests for 5 minutes
-  if (req.method === 'GET') {
-    res.set('Cache-Control', 'public, max-age=300');
-  } else {
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-  }
-  next();
-});
+// Logging condicional
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    next();
+  });
+}
 
+// Rutas
 app.use('/api/categories', categoryRoutes);
-app.use('/api', matchRoutes);
-app.use('/api', playerRoutes);
-app.use('/api', teamRoutes);
-app.use('/api', standingsRoutes);
-app.use('/api', sponsorRoutes);
-app.use('/api', scorerRoutes);
+app.use('/api/matches', matchRoutes);
+app.use('/api/players', playerRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/standings', standingsRoutes);
+app.use('/api/sponsors', sponsorRoutes);
 
+// Health check
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 8080;
 app.listen(port, () => {
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`Backend running on http://localhost:${port}`);
-  }
+  console.log(`Backend running on http://localhost:${port}`);
 });
