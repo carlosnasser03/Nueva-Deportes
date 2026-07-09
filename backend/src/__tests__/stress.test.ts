@@ -1,7 +1,13 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
-const API_BASE_URL = 'http://localhost:4000/api';
+declare global {
+  var TEST_API_URL: string;
+}
+
 const NUM_CONCURRENT_USERS = 15;
+
+// Get API URL from global or use default
+const getApiUrl = () => global.TEST_API_URL || 'http://localhost:4000/api';
 
 interface TestUser {
   userId: number;
@@ -20,7 +26,7 @@ async function makeRequest<T>(
   endpoint: string,
   body?: any,
 ): Promise<ApiResponse<T>> {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = `${getApiUrl()}${endpoint}`;
 
   try {
     const options: RequestInit = {
@@ -35,7 +41,7 @@ async function makeRequest<T>(
     }
 
     const response = await fetch(url, options);
-    const data = await response.json();
+    const data = response.status === 204 ? null : await response.json();
 
     return {
       status: response.status,

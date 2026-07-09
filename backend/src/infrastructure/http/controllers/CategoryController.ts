@@ -2,7 +2,24 @@ import { Request, Response } from 'express';
 import { CategoryDTO } from '@shared';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+let prisma: PrismaClient;
+
+// Initialize Prisma client
+export function initializePrismaClient(client?: PrismaClient) {
+  if (client) {
+    prisma = client;
+  } else if (!prisma) {
+    prisma = new PrismaClient();
+  }
+}
+
+// Get the Prisma client for testing
+export function getPrismaClient() {
+  if (!prisma) {
+    initializePrismaClient();
+  }
+  return prisma;
+}
 
 interface PrismaCategory {
   id: string;
@@ -11,8 +28,11 @@ interface PrismaCategory {
 }
 
 export class CategoryController {
+  constructor(private prismaClient?: PrismaClient) {}
+
   async list(req: Request, res: Response) {
-    const categories = await prisma.category.findMany();
+    const client = this.prismaClient || getPrismaClient();
+    const categories = await client.category.findMany();
     const result: CategoryDTO[] = categories.map((category: PrismaCategory) => ({
       id: category.id,
       name: category.name,
@@ -22,6 +42,7 @@ export class CategoryController {
   }
 
   async create(req: Request, res: Response) {
+    const client = this.prismaClient || getPrismaClient();
     const { name, color } = req.body;
 
     if (!name || !color) {
@@ -31,7 +52,7 @@ export class CategoryController {
     }
 
     try {
-      const category = await prisma.category.create({
+      const category = await client.category.create({
         data: {
           name: name.trim(),
           color: color.trim(),
@@ -53,6 +74,7 @@ export class CategoryController {
   }
 
   async update(req: Request, res: Response) {
+    const client = this.prismaClient || getPrismaClient();
     const { id } = req.params;
     const { name, color } = req.body;
 
@@ -63,7 +85,7 @@ export class CategoryController {
     }
 
     try {
-      const category = await prisma.category.findUnique({
+      const category = await client.category.findUnique({
         where: { id },
       });
 
@@ -77,7 +99,7 @@ export class CategoryController {
       if (name) updateData.name = name.trim();
       if (color) updateData.color = color.trim();
 
-      const updatedCategory = await prisma.category.update({
+      const updatedCategory = await client.category.update({
         where: { id },
         data: updateData,
       });
@@ -97,10 +119,11 @@ export class CategoryController {
   }
 
   async delete(req: Request, res: Response) {
+    const client = this.prismaClient || getPrismaClient();
     const { id } = req.params;
 
     try {
-      const category = await prisma.category.findUnique({
+      const category = await client.category.findUnique({
         where: { id },
       });
 
@@ -110,7 +133,7 @@ export class CategoryController {
         });
       }
 
-      await prisma.category.delete({
+      await client.category.delete({
         where: { id },
       });
 

@@ -1,7 +1,10 @@
 import { Router } from 'express';
-import { CategoryController } from '../controllers/CategoryController';
+import { CategoryController, initializePrismaClient } from '../controllers/CategoryController';
 
 const router = Router();
+
+// Ensure Prisma client is initialized
+initializePrismaClient();
 const controller = new CategoryController();
 
 router.get('/', controller.list.bind(controller));

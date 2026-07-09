@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Position {
+  GK
+  DEF
+  MID
+  FWD
+}
+
 model Category {
   id        String    @id @default(cuid())
   name      String
@@ -61,7 +68,7 @@ model Player {
   id           String            @id @default(cuid())
   name         String
   cardPhotoUrl String?
-  position     String
+  position     Position
   jerseyNumber Int?
   team         Team              @relation(fields: [teamId], references: [id])
   teamId       String

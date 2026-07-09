@@ -3,8 +3,15 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum Position {
+  GK
+  DEF
+  MID
+  FWD
 }
 
 model Category {
@@ -61,7 +68,7 @@ model Player {
   id           String            @id @default(cuid())
   name         String
   cardPhotoUrl String?
-  position     String
+  position     Position
   jerseyNumber Int?
   team         Team              @relation(fields: [teamId], references: [id])
   teamId       String
