@@ -125,39 +125,45 @@ export class CategoryController {
     const { id } = req.params;
 
     try {
-      const category = await client.category.findUnique({
-        where: { id },
-      });
-
-      if (!category) {
-        return res.status(404).json({
-          message: 'Categoría no encontrada',
-        });
-      }
-
-      // Delete related data first to avoid FK constraint issues
+      // Try to delete directly - SQLite will handle cascades
+      // if configured, or we catch the constraint error
       try {
-        // Delete teams in this category
-        await client.team.deleteMany({
-          where: { categoryId: id },
+        await client.category.delete({
+          where: { id },
         });
+      } catch (error: any) {
+        // If record not found, return 404
+        if (error?.code === 'P2025') {
+          return res.status(404).json({
+            message: 'Categoría no encontrada',
+          });
+        }
+        // If foreign key constraint, delete related data first
+        if (error?.code === 'P2003') {
+          // Delete stats first
+          const matches = await client.match.findMany({
+            where: { categoryId: id },
+            select: { id: true },
+          });
+          const matchIds = matches.map(m => m.id);
 
-        // Delete players in this category
-        await client.player.deleteMany({
-          where: { categoryId: id },
-        });
+          if (matchIds.length > 0) {
+            await client.playerMatchStat.deleteMany({
+              where: { matchId: { in: matchIds } },
+            });
+          }
 
-        // Delete matches in this category
-        await client.match.deleteMany({
-          where: { categoryId: id },
-        });
-      } catch (fkError) {
-        console.error('Error deleting related data:', fkError);
+          // Delete related entities
+          await client.match.deleteMany({ where: { categoryId: id } });
+          await client.player.deleteMany({ where: { categoryId: id } });
+          await client.team.deleteMany({ where: { categoryId: id } });
+
+          // Now delete the category
+          await client.category.delete({ where: { id } });
+        } else {
+          throw error;
+        }
       }
-
-      await client.category.delete({
-        where: { id },
-      });
 
       res.status(204).send();
     } catch (error: any) {

@@ -267,8 +267,9 @@ describe('Category CRUD Operations', () => {
 
     // Verify all exist in list
     const listResponse = await makeRequest<any[]>('GET', '/categories');
+    expect(Array.isArray(listResponse.data)).toBe(true);
     createdIds.forEach((id) => {
-      expect(listResponse.data.some((c: any) => c.id === id)).toBe(true);
+      expect((listResponse.data as any[]).some((c: any) => c.id === id)).toBe(true);
     });
 
     // Clean up
