@@ -1,6 +1,0 @@
-{
-  "buildCommand": "npm run build --workspace=deportehn-frontend",
-  "installCommand": "npm install",
-  "framework": "nextjs",
-  "outputDirectory": "frontend/.next"
-}
