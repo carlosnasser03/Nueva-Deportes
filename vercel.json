@@ -1,0 +1,9 @@
+{
+  "buildCommand": "npm run build --workspace=deportehn-frontend",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": "frontend/.next",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@next_public_api_url"
+  }
+}
