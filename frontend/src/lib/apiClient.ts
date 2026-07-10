@@ -1,6 +1,6 @@
 import type { CategoryDTO, MatchDTO, PlayerDTO, PlayerProfileDTO, ScorerDTO, SponsorDTO, StandingRowDTO, TeamDTO } from '@shared/index';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const BASE_URL = '/api';
 
 const jsonHeaders = { 'Content-Type': 'application/json' };
 
